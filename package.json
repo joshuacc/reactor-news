@@ -45,8 +45,7 @@
     ],
     "src/**/*.{ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "react-scripts test --watchAll=false"
+      "prettier --write"
     ]
   },
   "husky": {

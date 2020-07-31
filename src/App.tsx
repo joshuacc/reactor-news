@@ -8,7 +8,7 @@ export const App = () => {
     api.fetchStories().then((l) => setList(l));
   }, []);
   return (
-    <div>
+    <div style={{ maxWidth: "80ch", margin: "auto" }}>
       <h1>Reactor News: A Hacker News Clone</h1>
       <ul>
         {list.map((n) => (
