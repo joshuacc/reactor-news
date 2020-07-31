@@ -1,26 +1,20 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import { api } from "./api";
 
-function App() {
+export const App = () => {
+  const [list, setList] = useState<number[]>([]);
+  useEffect(() => {
+    api.fetchStories().then((l) => setList(l));
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Reactor News: A Hacker News Clone</h1>
+      <ul>
+        {list.map((n) => (
+          <li>{n}</li>
+        ))}
+      </ul>
     </div>
   );
-}
-
-export default App;
+};
