@@ -15,10 +15,13 @@ export const api = {
   async fetchStory(
     id: number,
     { before = noop, after = noop }: FetchStoryCallBacks = {}
-  ): Promise<Story> {
+  ): Promise<Story | undefined> {
     before(id);
     const res = await fetch(`${baseUrl}/item/${id}.json`);
     const story = await res.json();
+
+    // The HN API doesn't document it, but sometimes stories may be null
+    if (!story) return;
 
     const commentsUrl = `https://news.ycombinator.com/item?id=${story.id}`;
     story.commentsUrl = commentsUrl;
@@ -37,7 +40,7 @@ export const api = {
   fetchStories(
     ids: number[],
     callbacks: FetchStoryCallBacks = {}
-  ): Promise<Story>[] {
+  ): Promise<Story | undefined>[] {
     return ids.map((id) => this.fetchStory(id, callbacks));
   },
 };

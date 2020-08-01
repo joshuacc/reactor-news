@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import './App.css';
 import { api } from './api';
 import { reducer, defaultState, getActionDispatchers } from './reducer';
@@ -34,7 +34,7 @@ const useHnData = () => {
     );
 
     api.fetchStories(
-      state.newest.data.slice(firstUnfetchedIndex, firstUnfetchedIndex + 50),
+      state.newest.data.slice(firstUnfetchedIndex, firstUnfetchedIndex + 25),
       {
         before: actions.loadingItem,
         after: actions.loadingItemSuccess,
@@ -42,11 +42,25 @@ const useHnData = () => {
     );
   };
 
-  return [state, { loadNextStories }] as const;
+  return { state, loadNextStories } as const;
 };
 
 export const App = () => {
-  const [state] = useHnData();
+  const { state, loadNextStories } = useHnData();
+  const loadingRef = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (!loadingRef.current) return;
+
+    const observer = new IntersectionObserver(([observerEntry]) => {
+      if (state.loading || !observerEntry.isIntersecting) return;
+      loadNextStories();
+    });
+
+    observer.observe(loadingRef.current);
+
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.newest.status, state.loading]);
 
   return (
     <div style={{ maxWidth: '80ch', margin: 'auto' }}>
@@ -56,6 +70,7 @@ export const App = () => {
           state.newest.data.map((id) => (
             <StoryItem key={id} storyState={state.stories[id]} />
           ))}
+        <li ref={loadingRef}>Loading...</li>
       </ul>
     </div>
   );

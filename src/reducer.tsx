@@ -64,11 +64,13 @@ export type Actions = ListActions | ItemActions;
 
 export type StoryState = Loadable<Story> | undefined;
 export interface State {
+  loading: boolean;
   newest: Loadable<number[]>;
   stories: Record<number, StoryState>;
 }
 
 export const defaultState: State = {
+  loading: true,
   newest: {
     status: 'LOADING',
   },
@@ -78,27 +80,53 @@ export const defaultState: State = {
 export const reducer = (state: State, action: Actions): State => {
   switch (action.type) {
     case 'LOADING_LIST':
-      return { ...state, newest: { status: 'LOADING' } };
+      return { ...state, loading: true, newest: { status: 'LOADING' } };
     case 'LOADING_LIST_SUCCESS':
-      return { ...state, newest: { status: 'SUCCESS', data: action.list } };
+      return {
+        ...state,
+        loading: false,
+        newest: { status: 'SUCCESS', data: action.list },
+      };
     case 'LOADING_LIST_ERROR':
-      return { ...state, newest: { status: 'ERROR', error: action.error } };
+      return {
+        ...state,
+        loading: false,
+        newest: { status: 'ERROR', error: action.error },
+      };
     case 'LOADING_ITEM':
       return {
         ...state,
+        loading: true,
         stories: { ...state.stories, [action.id]: { status: 'LOADING' } },
       };
-    case 'LOADING_ITEM_SUCCESS':
+    case 'LOADING_ITEM_SUCCESS': {
       return {
         ...state,
+
         stories: {
           ...state.stories,
           [action.story.id]: { status: 'SUCCESS', data: action.story },
         },
+        loading:
+          state.newest.status === 'LOADING' ||
+          (state.newest.status === 'SUCCESS' &&
+            state.newest.data.some(
+              (id) =>
+                id !== action.story.id &&
+                state.stories[id]?.status === 'LOADING'
+            )),
       };
+    }
     case 'LOADING_ITEM_ERROR':
       return {
         ...state,
+        loading:
+          state.newest.status === 'LOADING' ||
+          (state.newest.status === 'SUCCESS' &&
+            state.newest.data.some(
+              (id) =>
+                id !== action.id && state.stories[id]?.status === 'LOADING'
+            )),
         stories: {
           ...state.stories,
           [action.id]: { status: 'ERROR', error: action.error },
