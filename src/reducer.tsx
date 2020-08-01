@@ -1,4 +1,5 @@
 import { Story } from './api';
+import { Dispatch } from 'react';
 
 interface LoadingState {
   status: 'LOADING';
@@ -59,7 +60,7 @@ interface LoadingItemError {
 
 type ItemActions = LoadingItem | LoadingItemSuccess | LoadingItemError;
 
-type Actions = ListActions | ItemActions;
+export type Actions = ListActions | ItemActions;
 
 export type StoryState = Loadable<Story> | undefined;
 export interface State {
@@ -107,3 +108,29 @@ export const reducer = (state: State, action: Actions): State => {
       throw new UnreachableCaseError(action);
   }
 };
+
+export const getActionDispatchers = (dispatch: Dispatch<Actions>) => ({
+  loadingList: () => dispatch({ type: 'LOADING_LIST' }),
+  loadingListSuccess: (list: number[]) =>
+    dispatch({
+      type: 'LOADING_LIST_SUCCESS',
+      list,
+    }),
+  loadingListError: (error: Error) =>
+    dispatch({
+      type: 'LOADING_LIST_ERROR',
+      error,
+    }),
+  loadingItem: (id: number) => dispatch({ type: 'LOADING_ITEM', id }),
+  loadingItemSuccess: (story: Story) =>
+    dispatch({
+      type: 'LOADING_ITEM_SUCCESS',
+      story,
+    }),
+  loadingItemError: (id: number, error: Error) =>
+    dispatch({
+      type: 'LOADING_ITEM_ERROR',
+      id,
+      error,
+    }),
+});
