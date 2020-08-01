@@ -12,10 +12,9 @@ export const App = () => {
       const storyIds = await api.fetchInitialStories();
       dispatch({ type: 'LOADING_LIST_SUCCESS', list: storyIds });
 
-      storyIds.slice(0, 50).forEach(async (id) => {
-        dispatch({ type: 'LOADING_ITEM', id });
-        const story = await api.fetchStory(id);
-        dispatch({ type: 'LOADING_ITEM_SUCCESS', story });
+      api.fetchStories(storyIds.slice(0, 50), {
+        before: (id) => dispatch({ type: 'LOADING_ITEM', id }),
+        after: (story) => dispatch({ type: 'LOADING_ITEM_SUCCESS', story }),
       });
     })();
   }, []);

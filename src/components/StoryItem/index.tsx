@@ -11,11 +11,15 @@ export const StoryItem = ({ storyState }: { storyState: StoryState }) => {
     return null;
   }
 
-  const { title, url } = storyState.data;
+  const { title, url, commentsUrl, descendants } = storyState.data;
 
   return (
     <li>
       <a href={url}>{title}</a>
+      <br />
+      <a href={commentsUrl}>
+        {typeof descendants === 'number' && `${descendants} `}comments
+      </a>
     </li>
   );
 };
