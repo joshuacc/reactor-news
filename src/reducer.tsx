@@ -39,11 +39,32 @@ interface LoadingListError {
   error: Error;
 }
 
-type Actions = LoadingList | LoadingListSuccess | LoadingListError;
+type ListActions = LoadingList | LoadingListSuccess | LoadingListError;
 
+interface LoadingItem {
+  type: 'LOADING_ITEM';
+  id: number;
+}
+
+interface LoadingItemSuccess {
+  type: 'LOADING_ITEM_SUCCESS';
+  story: Story;
+}
+
+interface LoadingItemError {
+  type: 'LOADING_ITEM_ERROR';
+  id: number;
+  error: Error;
+}
+
+type ItemActions = LoadingItem | LoadingItemSuccess | LoadingItemError;
+
+type Actions = ListActions | ItemActions;
+
+export type StoryState = Loadable<Story> | undefined;
 export interface State {
   newest: Loadable<number[]>;
-  stories: Record<number, Loadable<Story>>;
+  stories: Record<number, StoryState>;
 }
 
 export const defaultState: State = {
@@ -61,6 +82,27 @@ export const reducer = (state: State, action: Actions): State => {
       return { ...state, newest: { status: 'SUCCESS', data: action.list } };
     case 'LOADING_LIST_ERROR':
       return { ...state, newest: { status: 'ERROR', error: action.error } };
+    case 'LOADING_ITEM':
+      return {
+        ...state,
+        stories: { ...state.stories, [action.id]: { status: 'LOADING' } },
+      };
+    case 'LOADING_ITEM_SUCCESS':
+      return {
+        ...state,
+        stories: {
+          ...state.stories,
+          [action.story.id]: { status: 'SUCCESS', data: action.story },
+        },
+      };
+    case 'LOADING_ITEM_ERROR':
+      return {
+        ...state,
+        stories: {
+          ...state.stories,
+          [action.id]: { status: 'ERROR', error: action.error },
+        },
+      };
     default:
       throw new UnreachableCaseError(action);
   }

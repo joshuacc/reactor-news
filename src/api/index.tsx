@@ -1,9 +1,22 @@
 const baseUrl = 'https://hacker-news.firebaseio.com/v0';
 
 export const api = {
-  async fetchStories(): Promise<number[]> {
+  async fetchInitialStories(): Promise<number[]> {
     const res = await fetch(`${baseUrl}/newstories.json`);
-    return res.json();
+    return await res.json();
+  },
+
+  async fetchStory(id: number): Promise<Story> {
+    const res = await fetch(`${baseUrl}/item/${id}.json`);
+    const story = await res.json();
+
+    // Normalize the returned data for simpler handling in the UI code
+    // This gives "Ask HN" stories a url property
+    if (!story.url && story.type === 'story') {
+      story.url = `https://news.ycombinator.com/item?id=${story.id}`;
+    }
+
+    return story;
   },
 };
 
