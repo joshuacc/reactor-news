@@ -53,5 +53,8 @@
       "pre-commit": "lint-staged",
       "pre-push": "CI=true npm test"
     }
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }
