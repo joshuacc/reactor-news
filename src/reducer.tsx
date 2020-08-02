@@ -1,5 +1,4 @@
 import { Story } from './api';
-import { Dispatch } from 'react';
 
 interface LoadingState {
   status: 'LOADING';
@@ -20,6 +19,7 @@ type Loadable<T> = LoadingState | SuccessState<T> | ErrorState;
 // This enables exhaustive type-checking for switch statements.
 // When thrown in the default case, if any other possible cases aren't handled,
 // TypeScript will point it out with a compilation error.
+/* istanbul ignore next */
 class UnreachableCaseError extends Error {
   constructor(val: never) {
     super(`Unreachable case: ${val}`);
@@ -150,12 +150,13 @@ export const reducer = (state: State, action: Actions): State => {
           [action.id]: { status: 'ERROR', error: action.error },
         },
       };
+    /* istanbul ignore next */
     default:
       throw new UnreachableCaseError(action);
   }
 };
 
-export const getActionDispatchers = (dispatch: Dispatch<Actions>) => ({
+export const getActionDispatchers = (dispatch: (arg: Actions) => any) => ({
   loadingList: () => dispatch({ type: 'LOADING_LIST' }),
   loadingListSuccess: (list: number[]) =>
     dispatch({
