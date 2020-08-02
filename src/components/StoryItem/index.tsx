@@ -6,7 +6,8 @@ export const StoryItem = ({ storyState }: { storyState: StoryState }) => {
     !storyState ||
     storyState.status !== 'SUCCESS' ||
     storyState.data.deleted ||
-    storyState.data.dead
+    storyState.data.dead ||
+    storyState.data.type !== 'story'
   ) {
     return null;
   }

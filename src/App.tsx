@@ -26,20 +26,34 @@ const useHnData = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  console.log('in the hook');
   const loadNextStories = () => {
+    console.log('hi');
     if (state.newest.status !== 'SUCCESS') return;
 
     const firstUnfetchedIndex = state.newest.data.findIndex(
       (id) => !state.stories[id]
     );
 
-    api.fetchStories(
-      state.newest.data.slice(firstUnfetchedIndex, firstUnfetchedIndex + 25),
-      {
-        before: actions.loadingItem,
-        after: actions.loadingItemSuccess,
-      }
+    console.log('firstUnfetcedIndex', firstUnfetchedIndex);
+
+    if (firstUnfetchedIndex > -1) {
+      api.fetchStories(
+        state.newest.data.slice(firstUnfetchedIndex, firstUnfetchedIndex + 25),
+        {
+          before: actions.loadingItem,
+          after: actions.loadingItemSuccess,
+        }
+      );
+    }
+    console.log(
+      'firstUnfetchedIndex + 25 >= state.newest.data.length',
+      firstUnfetchedIndex + 25,
+      state.newest.data.length
     );
+    if (firstUnfetchedIndex + 25 >= state.newest.data.length) {
+      actions.growList(25);
+    }
   };
 
   return { state, loadNextStories } as const;

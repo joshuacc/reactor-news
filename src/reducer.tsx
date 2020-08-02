@@ -40,7 +40,16 @@ interface LoadingListError {
   error: Error;
 }
 
-type ListActions = LoadingList | LoadingListSuccess | LoadingListError;
+interface GrowList {
+  type: 'GROW_LIST';
+  by: number;
+}
+
+type ListActions =
+  | LoadingList
+  | LoadingListSuccess
+  | LoadingListError
+  | GrowList;
 
 interface LoadingItem {
   type: 'LOADING_ITEM';
@@ -77,6 +86,14 @@ export const defaultState: State = {
   stories: {},
 };
 
+const isLoading = (state: State, id: number) =>
+  state.newest.status === 'LOADING' ||
+  (state.newest.status === 'SUCCESS' &&
+    state.newest.data.some(
+      (currentId) =>
+        currentId !== id && state.stories[currentId]?.status === 'LOADING'
+    ));
+
 export const reducer = (state: State, action: Actions): State => {
   switch (action.type) {
     case 'LOADING_LIST':
@@ -93,6 +110,21 @@ export const reducer = (state: State, action: Actions): State => {
         loading: false,
         newest: { status: 'ERROR', error: action.error },
       };
+    case 'GROW_LIST': {
+      if (state.newest.status !== 'SUCCESS') return state;
+      const list = state.newest.data;
+      const lastId = list[list.length - 1];
+
+      const newIds = [];
+      for (let i = 1; i <= action.by; i++) {
+        newIds.push(lastId - i);
+      }
+
+      return {
+        ...state,
+        newest: { ...state.newest, data: list.concat(newIds) },
+      };
+    }
     case 'LOADING_ITEM':
       return {
         ...state,
@@ -102,31 +134,17 @@ export const reducer = (state: State, action: Actions): State => {
     case 'LOADING_ITEM_SUCCESS': {
       return {
         ...state,
-
+        loading: isLoading(state, action.story.id),
         stories: {
           ...state.stories,
           [action.story.id]: { status: 'SUCCESS', data: action.story },
         },
-        loading:
-          state.newest.status === 'LOADING' ||
-          (state.newest.status === 'SUCCESS' &&
-            state.newest.data.some(
-              (id) =>
-                id !== action.story.id &&
-                state.stories[id]?.status === 'LOADING'
-            )),
       };
     }
     case 'LOADING_ITEM_ERROR':
       return {
         ...state,
-        loading:
-          state.newest.status === 'LOADING' ||
-          (state.newest.status === 'SUCCESS' &&
-            state.newest.data.some(
-              (id) =>
-                id !== action.id && state.stories[id]?.status === 'LOADING'
-            )),
+        loading: isLoading(state, action.id),
         stories: {
           ...state.stories,
           [action.id]: { status: 'ERROR', error: action.error },
@@ -149,6 +167,7 @@ export const getActionDispatchers = (dispatch: Dispatch<Actions>) => ({
       type: 'LOADING_LIST_ERROR',
       error,
     }),
+  growList: (by: number) => dispatch({ type: 'GROW_LIST', by }),
   loadingItem: (id: number) => dispatch({ type: 'LOADING_ITEM', id }),
   loadingItemSuccess: (story: Story) =>
     dispatch({
