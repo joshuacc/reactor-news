@@ -20,7 +20,7 @@ export const App = () => {
   ]);
 
   return (
-    <div style={{ maxWidth: '80ch', margin: 'auto' }}>
+    <div className="content">
       <h1>Reactor News: A Hacker News Clone</h1>
       <ul>
         {state.newest.status === 'SUCCESS' &&

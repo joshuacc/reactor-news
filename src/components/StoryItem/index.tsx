@@ -17,7 +17,6 @@ export const StoryItem = ({ storyState }: { storyState: StoryState }) => {
   return (
     <li>
       <a href={url}>{title}</a>
-      <br />
       <a href={commentsUrl}>
         {typeof descendants === 'number' && `${descendants} `}comments
       </a>
