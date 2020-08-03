@@ -43,10 +43,13 @@ li a {
 
 li > a:first-child {
   display: block;
+  flex-grow: 1;
 }
 
 li > a:last-child {
   display: block;
   text-align: right;
   font-size: 0.8rem;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
