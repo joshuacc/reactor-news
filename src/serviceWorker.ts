@@ -60,6 +60,8 @@ export function register(config?: Config): Promise<any> {
           resolve();
         }
       });
+    } else {
+      resolve();
     }
   });
 }
