@@ -3,10 +3,11 @@ import './App.css';
 import { StoryItem } from './components/StoryItem';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 import { useHnData } from './hooks/useHnData';
+import { Spinner } from './components/Spinner';
 
 export const App = () => {
   const { state, loadNextStories } = useHnData();
-  const loadingRef = useRef<HTMLLIElement>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
     if (state.loading) return;
@@ -27,8 +28,10 @@ export const App = () => {
           state.newest.data.map((id) => (
             <StoryItem key={id} storyState={state.stories[id]} />
           ))}
-        <li ref={loadingRef}>Loading...</li>
       </ul>
+      <div ref={loadingRef}>
+        <Spinner />
+      </div>
     </div>
   );
 };
